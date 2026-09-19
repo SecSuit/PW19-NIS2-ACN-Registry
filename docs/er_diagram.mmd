@@ -1,0 +1,152 @@
+%% PW19 - Registro NIS2/ACN - Diagramma ER (modello logico, schema nis2, PostgreSQL 18)
+%% Notazione crow's foot. Sono disegnate le 14 tabelle principali con PK, FK e attributi piu importanti.
+%% OMESSE per leggibilita su pagina A4:
+%%   - le 9 tabelle di storico (<tabella>_storico): replicano la tabella corrente
+%%     con PK (<tabella>_id, versione) e le colonne valido_al, operazione, motivo, archiviato_da;
+%%   - le 17 tabelle di dominio (lookup): le rispettive FK sono indicate come attributi FK
+%%     con il nome della tabella di dominio nel commento;
+%%   - la tabella audit_log (nessuna FK);
+%%   - le colonne di versioning versione, valido_dal, modificato_da, presenti nelle 9 tabelle storicizzate.
+%% Cardinalita ricavate dal catalogo: FK NOT NULL = esattamente uno (||), FK nullable = zero o uno (|o),
+%% FK con vincolo UNIQUE = al massimo uno anche sul lato figlio (o|).
+%% Uso: incollare su https://mermaid.live ed esportare PNG o SVG.
+erDiagram
+    ORGANIZZAZIONE ||--o{ SEDE : "ha"
+    ORGANIZZAZIONE ||--o{ ASSEGNAZIONE_RUOLO : "attribuisce"
+    PERSONA ||--o{ ASSEGNAZIONE_RUOLO : "ricopre"
+    ORGANIZZAZIONE ||--o{ ASSET : "possiede"
+    SEDE |o--o{ ASSET : "ospita"
+    PERSONA ||--o{ ASSET : "proprietario"
+    ORGANIZZAZIONE ||--o{ SERVIZIO : "svolge"
+    PERSONA ||--o{ SERVIZIO : "responsabile"
+    SERVIZIO ||--o{ SERVIZIO_PAESE : "erogato in"
+    SERVIZIO ||--o{ SERVIZIO_ASSET : "si basa su"
+    ASSET ||--o{ SERVIZIO_ASSET : "supporta"
+    ASSET ||--o{ DIPENDENZA_ASSET : "dipende da"
+    ASSET ||--o{ DIPENDENZA_ASSET : "richiesto da"
+    ORGANIZZAZIONE |o--o| FORNITORE : "censita come"
+    FORNITORE ||--o{ CONTRATTO : "fornisce"
+    ORGANIZZAZIONE ||--o{ CONTRATTO : "stipula"
+    CONTRATTO ||--o{ DIPENDENZA_FORNITORE : "regola"
+    SERVIZIO |o--o{ DIPENDENZA_FORNITORE : "dipende da terzi"
+    ASSET |o--o{ DIPENDENZA_FORNITORE : "dipende da terzi"
+    ORGANIZZAZIONE ||--o{ SPAZIO_IP : "detiene"
+    ORGANIZZAZIONE ||--o{ DOMINIO : "registra"
+
+    ORGANIZZAZIONE {
+        bigint organizzazione_id PK
+        varchar ragione_sociale
+        char partita_iva UK
+        varchar pec
+        varchar telefono
+        varchar email_funzionale
+        varchar tipologia_soggetto_codice FK "dominio tipologia_soggetto"
+        varchar categoria_soggetto_codice FK "dominio categoria_soggetto"
+        varchar dimensione_codice FK "dominio dimensione_impresa"
+    }
+    SEDE {
+        bigint sede_id PK
+        bigint organizzazione_id FK
+        varchar tipo_sede "una sola LEGALE"
+        varchar denominazione
+        varchar comune
+        char paese_codice FK "dominio paese"
+    }
+    PERSONA {
+        bigint persona_id PK
+        varchar nome
+        varchar cognome
+        varchar email UK
+        varchar telefono
+    }
+    ASSEGNAZIONE_RUOLO {
+        bigint assegnazione_ruolo_id PK
+        bigint organizzazione_id FK
+        bigint persona_id FK
+        varchar ruolo_codice FK "dominio ruolo"
+        date data_inizio
+        date data_fine
+    }
+    ASSET {
+        bigint asset_id PK
+        bigint organizzazione_id FK
+        varchar codice
+        varchar denominazione
+        varchar tipo_asset_codice FK "dominio tipo_asset"
+        varchar classificazione_codice FK "dominio classificazione_informazione"
+        smallint criticita_livello FK "dominio livello_criticita"
+        integer rto_minuti
+        integer rpo_minuti
+        bigint sede_id FK
+        bigint proprietario_persona_id FK
+    }
+    SERVIZIO {
+        bigint servizio_id PK
+        bigint organizzazione_id FK
+        varchar codice
+        varchar denominazione
+        smallint criticita_livello FK "dominio livello_criticita"
+        integer utenti_impattati
+        boolean perimetro_nis
+        varchar macro_area_codice FK "dominio macro_area"
+        varchar categoria_rilevanza_codice FK "dominio categoria_rilevanza"
+        text valutazione_categoria
+        bigint responsabile_persona_id FK
+    }
+    SERVIZIO_PAESE {
+        bigint servizio_id PK, FK
+        char paese_codice PK, FK "dominio paese"
+    }
+    SERVIZIO_ASSET {
+        bigint servizio_id PK, FK
+        bigint asset_id PK, FK
+        varchar ruolo_asset
+    }
+    DIPENDENZA_ASSET {
+        bigint asset_id PK, FK
+        bigint asset_richiesto_id PK, FK
+        varchar tipo_dipendenza_codice FK "dominio tipo_dipendenza_asset"
+    }
+    FORNITORE {
+        bigint fornitore_id PK
+        varchar ragione_sociale
+        varchar identificativo_fiscale
+        char paese_codice FK "dominio paese"
+        varchar email_contatto
+        bigint organizzazione_id FK, UK
+    }
+    CONTRATTO {
+        bigint contratto_id PK
+        bigint organizzazione_id FK
+        bigint fornitore_id FK
+        varchar codice
+        date data_inizio
+        date data_fine
+        boolean clausole_sicurezza
+        boolean dpa_art28
+        boolean diritto_audit
+        integer notifica_incidenti_ore
+    }
+    DIPENDENZA_FORNITORE {
+        bigint dipendenza_fornitore_id PK
+        bigint contratto_id FK
+        bigint servizio_id FK "servizio oppure asset"
+        bigint asset_id FK "servizio oppure asset"
+        varchar tipo_fornitura_codice FK "dominio tipo_fornitura"
+        varchar criterio_rilevanza_codice FK "dominio criterio_rilevanza"
+        char codice_cpv
+        smallint criticita_livello FK "dominio livello_criticita"
+        char paese_trattamento_codice FK "dominio paese"
+    }
+    SPAZIO_IP {
+        bigint spazio_ip_id PK
+        bigint organizzazione_id FK
+        cidr rete "senza sovrapposizioni"
+        varchar descrizione
+    }
+    DOMINIO {
+        bigint dominio_id PK
+        bigint organizzazione_id FK
+        varchar nome_dominio UK
+        varchar descrizione
+    }
