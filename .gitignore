@@ -1,0 +1,29 @@
+# Relazione del Project Work: consegnata tramite la piattaforma dell'Ateneo,
+# non pubblicata prima della consegna (controllo antiplagio)
+relazione/
+
+# Sistema operativo ed editor
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# File temporanei di Office / Google Docs scaricati
+~$*.docx
+*.tmp
+
+# Backup e dump del database (possono contenere dati riservati)
+*.dump
+*.backup
+*.bak
+
+# Python
+__pycache__/
+*.pyc
+
+# Credenziali locali (mai versionare)
+.pgpass
+pgpass.conf
+*.env

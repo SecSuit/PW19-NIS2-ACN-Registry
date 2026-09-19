@@ -1,0 +1,11 @@
+# Normalizzazione dei fine riga: LF nel repository, conversione automatica su Windows
+* text=auto eol=lf
+*.sql  text eol=lf
+*.md   text eol=lf
+*.mmd  text eol=lf
+*.py   text eol=lf
+# I CSV esportati usano CRLF (RFC 4180) o LF: non vanno toccati
+*.csv  -text
+*.png  binary
+*.docx binary
+*.pdf  binary
