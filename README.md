@@ -98,7 +98,7 @@ Lo stesso file si può aprire anche nel Query Tool ed eseguire con F5: gli esiti
 
 ### 5. Query per le figure
 
-`sql/screenshot_query.sql` contiene i blocchi S02–S16 e S18 (la Figura 17 è l’esito dei test), eseguibili uno alla volta nel Query Tool. Il numero del blocco coincide con il numero della figura.
+`sql/screenshot_query.sql` contiene i blocchi dimostrativi S02–S16 e S18, eseguibili uno alla volta nel Query Tool. La relazione ne riporta una selezione: Figura 2 = S03 (versioning), Figura 3 = S07 (vincolo CHECK), Figura 4 = S09 (indici), Figura 5 = S18 (controllo degli accessi), Figura 6 = S12 (dipendenze da terzi), Figura 7 = S16 (export CSV); la Figura 1 è il diagramma ER e la Figura 8 l'esito dei test.
 
 ## Uso rapido
 

@@ -1,11 +1,11 @@
 -- =============================================================================
 -- PW19 - Registro NIS2/ACN
 -- File      : sql/screenshot_query.sql
--- Scopo     : query per le figure della relazione. Il numero del blocco
---             coincide con il numero della figura (S02 = Figura 2, ...).
---             La Figura 1 è il diagramma ER (docs/er_diagram.png); la
---             Figura 17 è l'esito della suite di test (tests/...).
---             La Figura 18 (blocco S18) mostra il controllo degli accessi.
+-- Scopo     : blocchi dimostrativi eseguibili uno alla volta (S02-S16, S18).
+--             La relazione ne riporta una selezione: Figura 2 = S03,
+--             Figura 3 = S07, Figura 4 = S09, Figura 5 = S18, Figura 6 = S12,
+--             Figura 7 = S16; Figura 1 = diagramma ER (docs/er_diagram.png),
+--             Figura 8 = esito della suite di test (tests/...).
 -- Strumento : TUTTI i blocchi si eseguono nel QUERY TOOL di pgAdmin 4 e non
 --             contengono meta-comandi psql (\copy, \i, \d).
 -- Prerequisito: deploy appena eseguito (00_run_all.sql) sul database nis2_acn.
