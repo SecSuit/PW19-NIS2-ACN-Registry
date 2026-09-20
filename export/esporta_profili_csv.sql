@@ -4,14 +4,18 @@
 -- Scopo     : esporta in CSV il profilo ACN di ogni azienda e il profilo
 --             completo, nella cartella export/ del repository.
 -- Esecuzione: SOLO da psql o dal PSQL Tool di pgAdmin 4 (usa meta-comandi):
---               \i 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/export/esporta_profili_csv.sql'
---             Se il repository si trova altrove, modificare la variabile
---             "cartella" qui sotto (barre "/" anche su Windows).
+--               \i 'C:/PW19-NIS2-ACN-Registry/export/esporta_profili_csv.sql'
+--             Se il repository si trova altrove, impostare prima la cartella:
+--               \set cartella 'C:/percorso/del/repository/export'
+--             (barre "/" anche su Windows); altrimenti vale il percorso predefinito.
 -- =============================================================================
 
 \set ON_ERROR_STOP on
 \encoding UTF8
-\set cartella 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/export'
+\if :{?cartella}
+\else
+    \set cartella 'C:/PW19-NIS2-ACN-Registry/export'
+\endif
 \cd :cartella
 
 \copy (SELECT * FROM nis2.fn_profilo_acn(1)) TO 'profilo_acn_1_zagara_neuro_therapeutics.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')

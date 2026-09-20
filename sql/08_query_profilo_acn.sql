@@ -133,7 +133,7 @@ SELECT nis2.fn_profilo_acn_csv(1, ';') AS csv_punto_e_virgola_excel;
 --     dal CLIENT con i permessi dell'utente Windows, quindi anche in Documenti.
 --     NON funziona nel Query Tool (i meta-comandi con la barra rovesciata sono
 --     riconosciuti solo da psql). Esempio:
---       \cd 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/export'
+--       \cd 'C:/PW19-NIS2-ACN-Registry/export'
 --       \copy (SELECT * FROM nis2.fn_profilo_acn(1)) TO 'profilo_acn_1_zagara_neuro_therapeutics.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')
 --     Lo script export/esporta_profili_csv.sql esporta i profili di tutte le aziende.
 --

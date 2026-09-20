@@ -35,7 +35,7 @@ Il registro sostituisce fogli di calcolo e documenti sparsi con un'unica base da
 
 ## Deploy da zero su Windows con pgAdmin 4
 
-Si presume che il repository si trovi in `C:\Users\aroci\OneDrive\Desktop\nis2_acn`. Se è altrove, adattare i percorsi usando sempre le barre `/`.
+Negli esempi il repository si trova in `C:/PW19-NIS2-ACN-Registry` (per esempio dopo `git clone https://github.com/secsuit/PW19-NIS2-ACN-Registry.git` eseguito in `C:\`). Se si trova altrove, sostituire il percorso nei comandi `\i`, usando sempre le barre `/` anche su Windows.
 
 ### 1. Pulizia e creazione del database
 
@@ -56,7 +56,7 @@ Si presume che il repository si trovi in `C:\Users\aroci\OneDrive\Desktop\nis2_a
 1. Tasto destro su **`nis2_acn` → PSQL Tool**.
 2. Incollare ed eseguire:
    ```
-   \i 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/sql/00_run_all.sql'
+   \i 'C:/PW19-NIS2-ACN-Registry/sql/00_run_all.sql'
    ```
    `00_run_all.sql` imposta `ON_ERROR_STOP` e la codifica UTF-8, poi richiama gli script da `01_` a `07_` e `09_` con `\ir` (percorsi relativi al file). Per questo la cartella di lavoro del PSQL Tool non conta.
 3. Al termine compare il riepilogo:
@@ -79,7 +79,7 @@ Gli script sono idempotenti: rilanciando `00_run_all.sql` si ottiene lo stesso r
 
 Sempre nel PSQL Tool:
 ```
-\i 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/tests/test_integrita_e_versioning.sql'
+\i 'C:/PW19-NIS2-ACN-Registry/tests/test_integrita_e_versioning.sql'
 ```
 Esito atteso (dopo pochi secondi): `=== ESITO: 56 PASS, 0 FAIL su 56 test (il ROLLBACK finale lascia il database invariato) ===`. I test girano in una transazione annullata, quindi il database non cambia.
 
@@ -91,9 +91,9 @@ Lo stesso file si può aprire anche nel Query Tool ed eseguire con F5: gli esiti
 - **Export da Query Tool:** eseguire `SELECT * FROM nis2.fn_profilo_acn(1);` e premere il pulsante **Save results to file** (freccia verso il basso sopra la griglia, oppure F8). Il file .csv finisce nella cartella Download.
 - **Export da PSQL Tool (`\copy`, lato client):**
   ```
-  \i 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/export/esporta_profili_csv.sql'
+  \i 'C:/PW19-NIS2-ACN-Registry/export/esporta_profili_csv.sql'
   ```
-  Lo script scrive i CSV di tutte le aziende nella cartella `export/`.
+  Lo script scrive i CSV di tutte le aziende nella cartella `export/`. Se il repository si trova altrove, prima dello script si indica la cartella con `\set cartella 'C:/percorso/del/repository/export'`.
 - Non si usa `COPY ... TO 'percorso'` lato server: il servizio PostgreSQL su Windows non ha i permessi per scrivere nella cartella Documenti dell'utente.
 
 ### 5. Query per le figure

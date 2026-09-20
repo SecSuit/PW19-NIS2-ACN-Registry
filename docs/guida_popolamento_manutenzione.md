@@ -7,7 +7,7 @@ Questa guida è rivolta a chi alimenta e mantiene il registro (punto di contatto
 1. Collegarsi al database **`postgres`** (Query Tool aperto su `postgres`): non si può eliminare il database a cui si è collegati.
 2. Eseguire **da solo**: `DROP DATABASE IF EXISTS nis2_acn WITH (FORCE);`
 3. Eseguire **da solo**: `CREATE DATABASE nis2_acn ENCODING 'UTF8' TEMPLATE template0;`
-4. Premere **F5** per aggiornare l'albero, poi aprire il **PSQL Tool** su `nis2_acn` ed eseguire `\i 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/sql/00_run_all.sql'`.
+4. Premere **F5** per aggiornare l'albero, poi aprire il **PSQL Tool** su `nis2_acn` ed eseguire `\i 'C:/PW19-NIS2-ACN-Registry/sql/00_run_all.sql'`.
 
 I due comandi dei punti 2 e 3 vanno eseguiti separatamente, altrimenti si ottiene l'errore `cannot run inside a transaction block`.
 

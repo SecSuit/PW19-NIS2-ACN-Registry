@@ -1,6 +1,6 @@
-# Data dictionary – schema `nis2`
+# Data dictionary – schemi `nis2` e `nis2_meta`
 
-Generato automaticamente dal catalogo di PostgreSQL con `tools/genera_data_dictionary.py` il 19/09/2026. Descrizioni = `COMMENT ON` definiti negli script SQL.
+Generato automaticamente dal catalogo di PostgreSQL con `tools/genera_data_dictionary.py` il 20/09/2026. Descrizioni = `COMMENT ON` definiti negli script SQL.
 
 Legenda: **PK** chiave primaria · **FK** chiave esterna · **UK** vincolo di unicità · **NN** NOT NULL · CHECK/EXCLUDE = vincoli di dominio.
 
@@ -410,6 +410,85 @@ Righe nel dataset di test: 29.
 
 **Trigger**: `trg_assegnazione_ruolo_10_versione`, `trg_assegnazione_ruolo_20_regole`, `trg_assegnazione_ruolo_80_storico`, `trg_assegnazione_ruolo_90_audit`
 
+## Categorizzazione delle attività e dei servizi (Det. ACN 155238/2026)
+
+
+### `nis2.modello_categorizzazione`
+
+Modelli di categorizzazione adottati dalla Determinazione ACN n. 155238/2026 (Allegato 1 e Allegato 2).
+
+Righe nel dataset di test: 2.
+
+| Colonna | Tipo | Chiavi | NN | Default | Descrizione |
+|---|---|---|---|---|---|
+| `codice` | character varying(20) | PK | sì |  | Codice del modello (chiave naturale). |
+| `denominazione` | character varying(120) | UK | sì |  | Denominazione del modello. |
+| `ambito` | text |  | sì |  | Soggetti a cui il modello si applica (art. 2, commi 2 e 3, della determinazione). |
+
+**Vincoli**
+
+- `modello_categorizzazione_denominazione_key`: `UNIQUE (denominazione)`
+
+**Trigger**: `trg_modello_categorizzazione_90_audit`
+
+### `nis2.macro_area`
+
+Le dieci macro-aree del modello di categorizzazione ACN (Determinazione n. 155238/2026, Allegati 1 e 2).
+
+Righe nel dataset di test: 10.
+
+| Colonna | Tipo | Chiavi | NN | Default | Descrizione |
+|---|---|---|---|---|---|
+| `codice` | character varying(30) | PK | sì |  | Codice della macro-area (chiave naturale). |
+| `denominazione` | character varying(80) | UK | sì |  | Denominazione della macro-area come da allegato. |
+| `descrizione` | text |  | sì |  | Sintesi delle attività e dei servizi compresi nella macro-area. |
+
+**Vincoli**
+
+- `macro_area_denominazione_key`: `UNIQUE (denominazione)`
+
+**Trigger**: `trg_macro_area_90_audit`
+
+### `nis2.categoria_rilevanza`
+
+Categorie di rilevanza delle attività e dei servizi (Determinazione ACN n. 155238/2026, art. 2, c. 4).
+
+Righe nel dataset di test: 4.
+
+| Colonna | Tipo | Chiavi | NN | Default | Descrizione |
+|---|---|---|---|---|---|
+| `codice` | character varying(20) | PK | sì |  | Codice della categoria (chiave naturale). |
+| `denominazione` | character varying(40) | UK | sì |  | Denominazione ufficiale della categoria. |
+| `ordine` | smallint | UK | sì |  | Ordinamento crescente per impatto (1 = minimo, 4 = alto). |
+
+**Vincoli**
+
+- `ck_categoria_rilevanza_ordine`: `CHECK (((ordine >= 1) AND (ordine <= 4)))`
+- `categoria_rilevanza_denominazione_key`: `UNIQUE (denominazione)`
+- `categoria_rilevanza_ordine_key`: `UNIQUE (ordine)`
+
+**Trigger**: `trg_categoria_rilevanza_90_audit`
+
+### `nis2.macro_area_modello`
+
+Categoria di rilevanza pre-assegnata a ciascuna macro-area in ciascun modello (Allegati 1 e 2 della Determinazione ACN n. 155238/2026).
+
+Righe nel dataset di test: 20.
+
+| Colonna | Tipo | Chiavi | NN | Default | Descrizione |
+|---|---|---|---|---|---|
+| `modello_codice` | character varying(20) | FK→modello_categorizzazione, PK | sì |  | Modello di categorizzazione (FK). |
+| `macro_area_codice` | character varying(30) | FK→macro_area, PK | sì |  | Macro-area (FK). |
+| `categoria_predefinita_codice` | character varying(20) | FK→categoria_rilevanza | sì |  | Categoria di rilevanza pre-assegnata dal modello (FK). |
+
+**Vincoli**
+
+- `macro_area_modello_categoria_predefinita_codice_fkey`: `FOREIGN KEY (categoria_predefinita_codice) REFERENCES nis2.categoria_rilevanza(codice) ON UPDATE CASCADE ON DELETE RESTRICT`
+- `macro_area_modello_macro_area_codice_fkey`: `FOREIGN KEY (macro_area_codice) REFERENCES nis2.macro_area(codice) ON UPDATE CASCADE ON DELETE RESTRICT`
+- `macro_area_modello_modello_codice_fkey`: `FOREIGN KEY (modello_codice) REFERENCES nis2.modello_categorizzazione(codice) ON UPDATE CASCADE ON DELETE RESTRICT`
+
+**Trigger**: `trg_macro_area_modello_90_audit`
+
 ## Asset e servizi
 
 
@@ -789,6 +868,44 @@ Righe nel dataset di test: 214.
 - `ix_audit_log_tabella_istante`: `btree (tabella, istante DESC)`
 
 **Trigger**: `trg_audit_log_immutabile`
+
+## Metadati di versione (schema nis2_meta)
+
+
+### `nis2_meta.versione_schema`
+
+Versioni rilasciate dello schema nis2 (una riga per release, allineata ai tag Git).
+
+Righe nel dataset di test: 1.
+
+| Colonna | Tipo | Chiavi | NN | Default | Descrizione |
+|---|---|---|---|---|---|
+| `versione` | character varying(20) | PK | sì |  | Numero di versione nel formato vMAJOR.MINOR[.PATCH], uguale al tag Git. |
+| `descrizione` | text |  | sì |  | Contenuto della release. |
+| `rilasciata_il` | date |  | sì |  | Data di rilascio. |
+
+**Vincoli**
+
+- `ck_versione_schema_formato`: `CHECK (((versione)::text ~ '^v[0-9]+\.[0-9]+(\.[0-9]+)?$'::text))`
+
+### `nis2_meta.registro_deploy`
+
+Cronologia dei deploy: ogni esecuzione di 00_run_all.sql aggiunge una riga.
+
+Righe nel dataset di test: 1.
+
+| Colonna | Tipo | Chiavi | NN | Default | Descrizione |
+|---|---|---|---|---|---|
+| `deploy_id` | bigint | PK | sì | IDENTITY ALWAYS | Identificativo progressivo del deploy. |
+| `versione` | character varying(20) | FK→versione_schema | sì |  | Versione dello schema installata. |
+| `eseguito_il` | timestamp with time zone |  | sì | clock_timestamp() | Istante di esecuzione. |
+| `eseguito_da` | name |  | sì | SESSION_USER | Utente che ha eseguito il deploy. |
+| `database` | name |  | sì | current_database() | Database di destinazione. |
+| `server` | text |  | sì | split_part(version(), ','::text, 1) | Versione del server PostgreSQL. |
+
+**Vincoli**
+
+- `registro_deploy_versione_fkey`: `FOREIGN KEY (versione) REFERENCES nis2_meta.versione_schema(versione)`
 
 ## Tabelle di storico
 

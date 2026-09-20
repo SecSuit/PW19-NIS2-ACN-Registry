@@ -4,7 +4,7 @@
 -- Scopo     : deploy completo e riproducibile da zero, nell'ordine corretto.
 -- Esecuzione: SOLO da psql o dal PSQL Tool di pgAdmin 4 (usa meta-comandi),
 --             connessi al database di destinazione nis2_acn:
---                 \i 'C:/Users/aroci/OneDrive/Desktop/nis2_acn/sql/00_run_all.sql'
+--                 \i 'C:/PW19-NIS2-ACN-Registry/sql/00_run_all.sql'
 --             Usare le barre "/" anche su Windows. La cartella di lavoro del
 --             PSQL Tool non conta: \ir risolve ogni script rispetto alla
 --             cartella di QUESTO file.
